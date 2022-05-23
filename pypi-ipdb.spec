@@ -4,7 +4,7 @@
 #
 Name     : pypi-ipdb
 Version  : 0.13.9
-Release  : 41
+Release  : 42
 URL      : https://files.pythonhosted.org/packages/fc/56/9f67dcd4a4b9960373173a31be1b8c47fe351a1c9385677a7bdd82810e57/ipdb-0.13.9.tar.gz
 Source0  : https://files.pythonhosted.org/packages/fc/56/9f67dcd4a4b9960373173a31be1b8c47fe351a1c9385677a7bdd82810e57/ipdb-0.13.9.tar.gz
 Summary  : IPython-enabled pdb
@@ -66,13 +66,16 @@ python3 components for the pypi-ipdb package.
 %prep
 %setup -q -n ipdb-0.13.9
 cd %{_builddir}/ipdb-0.13.9
+pushd ..
+cp -a ipdb-0.13.9 buildavx2
+popd
 
 %build
 export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1649765330
+export SOURCE_DATE_EPOCH=1653337469
 export GCC_IGNORE_WERROR=1
 export CFLAGS="$CFLAGS -fno-lto "
 export FCFLAGS="$FFLAGS -fno-lto "
@@ -86,6 +89,15 @@ export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 PYTHONPATH=%{buildroot}$(python -c "import sys; print(sys.path[-1])") python setup.py test
+pushd ../buildavx2/
+export CFLAGS="$CFLAGS -m64 -march=x86-64-v3 -Wl,-z,x86-64-v3 "
+export CXXFLAGS="$CXXFLAGS -m64 -march=x86-64-v3 -Wl,-z,x86-64-v3 "
+export FFLAGS="$FFLAGS -m64 -march=x86-64-v3 -Wl,-z,x86-64-v3 "
+export FCFLAGS="$FCFLAGS -m64 -march=x86-64-v3 "
+export LDFLAGS="$LDFLAGS -m64 -march=x86-64-v3 "
+python3 setup.py build
+
+popd
 %install
 export MAKEFLAGS=%{?_smp_mflags}
 rm -rf %{buildroot}
@@ -95,6 +107,15 @@ python3 -tt setup.py build  install --root=%{buildroot}
 echo ----[ mark ]----
 cat %{buildroot}/usr/lib/python3*/site-packages/*/requires.txt || :
 echo ----[ mark ]----
+pushd ../buildavx2/
+export CFLAGS="$CFLAGS -m64 -march=x86-64-v3 -Wl,-z,x86-64-v3 "
+export CXXFLAGS="$CXXFLAGS -m64 -march=x86-64-v3 -Wl,-z,x86-64-v3 "
+export FFLAGS="$FFLAGS -m64 -march=x86-64-v3 -Wl,-z,x86-64-v3 "
+export FCFLAGS="$FCFLAGS -m64 -march=x86-64-v3 "
+export LDFLAGS="$LDFLAGS -m64 -march=x86-64-v3 "
+python3 -tt setup.py build install --root=%{buildroot}-v3
+popd
+/usr/bin/elf-move.py avx2 %{buildroot}-v3 %{buildroot}/usr/share/clear/optimized-elf/ %{buildroot}/usr/share/clear/filemap/filemap-%{name}
 
 %files
 %defattr(-,root,root,-)
