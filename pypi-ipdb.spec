@@ -4,7 +4,7 @@
 #
 Name     : pypi-ipdb
 Version  : 0.13.11
-Release  : 53
+Release  : 54
 URL      : https://files.pythonhosted.org/packages/23/b2/c972cc266b0ba8508b42dab7f5dea1be03ea32213258441bf1b00baca555/ipdb-0.13.11.tar.gz
 Source0  : https://files.pythonhosted.org/packages/23/b2/c972cc266b0ba8508b42dab7f5dea1be03ea32213258441bf1b00baca555/ipdb-0.13.11.tar.gz
 Summary  : IPython-enabled pdb
